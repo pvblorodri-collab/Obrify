@@ -18,9 +18,9 @@
   <span class="badge bg-secondary-subtle text-secondary-emphasis fs-6">{{ obra.get_estado_display }}</span>
 </div>
 
-<div class="row g-3">
+<div class="row g-3 mb-3">
   <div class="col-md-4">
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm h-100">
       <div class="card-body">
         <h2 class="h6 text-muted mb-3">Cliente</h2>
         <p class="mb-1 fw-semibold">{{ obra.cliente.nombre }}</p>
@@ -31,7 +31,7 @@
   </div>
 
   <div class="col-md-4">
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm h-100">
       <div class="card-body">
         <h2 class="h6 text-muted mb-3">Fechas</h2>
         <p class="mb-1 small"><span class="text-muted">Inicio:</span> {{ obra.fecha_inicio|default:"—" }}</p>
@@ -42,21 +42,71 @@
   </div>
 
   <div class="col-md-4">
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm h-100">
       <div class="card-body">
-        <h2 class="h6 text-muted mb-3">Presupuesto</h2>
-        <p class="text-muted small mb-0">Aún no implementado.</p>
+        <h2 class="h6 text-muted mb-3">Descripción</h2>
+        {% if obra.descripcion %}
+          <p class="mb-0 small">{{ obra.descripcion|linebreaksbr }}</p>
+        {% else %}
+          <p class="text-muted small mb-0">Sin descripción.</p>
+        {% endif %}
       </div>
     </div>
   </div>
 </div>
 
-{% if obra.descripcion %}
-<div class="card border-0 shadow-sm mt-3">
-  <div class="card-body">
-    <h2 class="h6 text-muted mb-2">Descripción</h2>
-    <p class="mb-0">{{ obra.descripcion|linebreaks }}</p>
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+    <h2 class="h6 mb-0">Presupuestos</h2>
+    <form method="post" action="{% url 'crear_presupuesto' obra.pk %}" class="m-0">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Nuevo presupuesto
+      </button>
+    </form>
+  </div>
+  <div class="card-body p-0">
+    {% if obra.presupuestos.all %}
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Número</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th class="text-end">Total</th>
+            <th style="width: 180px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in obra.presupuestos.all %}
+            <tr>
+              <td class="fw-semibold">{{ p.numero }}</td>
+              <td>{{ p.fecha }}</td>
+              <td>
+                <span class="badge {% if p.estado == 'aceptado' %}bg-success-subtle text-success-emphasis{% elif p.estado == 'rechazado' or p.estado == 'caducado' %}bg-danger-subtle text-danger-emphasis{% elif p.estado == 'enviado' %}bg-info-subtle text-info-emphasis{% else %}bg-warning-subtle text-warning-emphasis{% endif %}">
+                  {{ p.get_estado_display }}
+                </span>
+              </td>
+              <td class="text-end">{{ p.total|floatformat:2 }} €</td>
+              <td class="text-end">
+                <a href="{% url 'ver_presupuesto' p.pk %}" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-eye"></i> Ver
+                </a>
+                {% if p.editable %}
+                <a href="{% url 'editar_presupuesto' p.pk %}" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="text-center py-4 text-muted small">
+        Aún no hay presupuestos para esta obra.
+      </div>
+    {% endif %}
   </div>
 </div>
-{% endif %}
 {% endblock %}

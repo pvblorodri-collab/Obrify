@@ -13,7 +13,7 @@ def lista_obras(request):
 @login_required
 def detalle_obra(request, pk: int):
     obra = get_object_or_404(
-        Obra.objects.select_related("cliente"),
+        Obra.objects.select_related("cliente").prefetch_related("presupuestos"),
         pk=pk,
         organizacion=request.user.organizacion,
     )

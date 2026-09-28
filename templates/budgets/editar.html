@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Editar presupuesto {{ presupuesto.numero }} — Obrify{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb small">
+    <li class="breadcrumb-item"><a href="{% url 'lista_obras' %}" class="text-decoration-none">Obras</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'detalle_obra' obra.pk %}" class="text-decoration-none">{{ obra.codigo }}</a></li>
+    <li class="breadcrumb-item active">Presupuesto {{ presupuesto.numero }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="h3 mb-1">Presupuesto {{ presupuesto.numero }}</h1>
+    <p class="text-muted mb-0">{{ obra.codigo }} · {{ obra.cliente.nombre }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'ver_presupuesto' presupuesto.pk %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-eye"></i> Vista previa
+    </a>
+    <span class="badge bg-warning-subtle text-warning-emphasis align-self-center px-3 py-2">
+      {{ presupuesto.get_estado_display }}
+    </span>
+  </div>
+</div>
+
+<div id="capitulos">
+  {% for capitulo in presupuesto.capitulos.all %}
+    {% include "budgets/_capitulo.html" %}
+  {% endfor %}
+</div>
+
+<div class="mt-3 mb-4">
+  <button class="btn btn-outline-primary"
+          hx-post="{% url 'anadir_capitulo' presupuesto.pk %}"
+          hx-target="#capitulos"
+          hx-swap="beforeend"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <i class="bi bi-plus-lg"></i> Añadir capítulo
+  </button>
+</div>
+
+<div id="totales-wrapper">
+  {% include "budgets/_totales.html" %}
+</div>
+
+{% if presupuesto.editable %}
+<div class="card border-0 shadow-sm mt-4">
+  <div class="card-body d-flex justify-content-between align-items-center">
+    <div>
+      <p class="mb-0 fw-semibold">¿Listo para enviar al cliente?</p>
+      <p class="text-muted small mb-0">Una vez enviado, no podrás editar el presupuesto.</p>
+    </div>
+    <form method="post" action="{% url 'cambiar_estado_presupuesto' presupuesto.pk %}" class="m-0">
+      {% csrf_token %}
+      <input type="hidden" name="estado" value="enviado">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-send"></i> Marcar como enviado
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

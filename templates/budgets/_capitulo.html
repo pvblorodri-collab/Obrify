@@ -1,0 +1,67 @@
+{# Fragmento de un capítulo (con sus partidas). Reutilizado por HTMX. #}
+<div class="card border-0 shadow-sm mb-3" id="capitulo-{{ capitulo.pk }}">
+  <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-2 flex-grow-1">
+      <button class="btn btn-sm btn-link p-0 text-muted"
+              data-bs-toggle="collapse"
+              data-bs-target="#partidas-{{ capitulo.pk }}">
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <input type="text"
+             class="form-control form-control-sm border-0 fw-semibold"
+             value="{{ capitulo.nombre }}"
+             hx-post="{% url 'renombrar_capitulo' capitulo.pk %}"
+             hx-trigger="blur changed"
+             hx-swap="none"
+             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+             name="nombre"
+             style="max-width: 400px;">
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-muted small">Subtotal:</span>
+      <span id="subtotal-capitulo-{{ capitulo.pk }}" class="fw-semibold">
+        {{ capitulo.subtotal|floatformat:2 }} €
+      </span>
+      <button class="btn btn-sm btn-link text-danger"
+              hx-post="{% url 'eliminar_capitulo' capitulo.pk %}"
+              hx-target="#capitulo-{{ capitulo.pk }}"
+              hx-swap="outerHTML"
+              hx-confirm="¿Eliminar este capítulo y todas sus partidas?"
+              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+              title="Eliminar capítulo">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="collapse show" id="partidas-{{ capitulo.pk }}">
+    <div class="table-responsive">
+      <table class="table table-sm mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 40%;">Descripción</th>
+            <th style="width: 10%;">Cant.</th>
+            <th style="width: 10%;">Ud.</th>
+            <th style="width: 15%;">Precio</th>
+            <th style="width: 15%;" class="text-end">Total</th>
+            <th style="width: 10%;"></th>
+          </tr>
+        </thead>
+        <tbody id="partidas-tbody-{{ capitulo.pk }}">
+          {% for partida in capitulo.partidas.all %}
+            {% include "budgets/_partida_fila.html" %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="p-2 border-top">
+      <button class="btn btn-sm btn-outline-secondary"
+              hx-post="{% url 'anadir_partida' capitulo.pk %}"
+              hx-target="#partidas-tbody-{{ capitulo.pk }}"
+              hx-swap="beforeend"
+              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <i class="bi bi-plus-lg"></i> Añadir partida
+      </button>
+    </div>
+  </div>
+</div>

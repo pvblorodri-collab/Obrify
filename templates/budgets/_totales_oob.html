@@ -1,0 +1,9 @@
+{# Se inyecta con hx-swap-oob para refrescar los totales tras cada cambio. #}
+<div id="totales-wrapper" hx-swap-oob="innerHTML">
+  {% include "budgets/_totales.html" %}
+</div>
+{% if capitulo %}
+<span id="subtotal-capitulo-{{ capitulo.pk }}" hx-swap-oob="innerHTML">
+  {{ capitulo.subtotal|floatformat:2 }} €
+</span>
+{% endif %}

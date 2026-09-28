@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Presupuesto {{ presupuesto.numero }} — Obrify{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb small">
+    <li class="breadcrumb-item"><a href="{% url 'lista_obras' %}" class="text-decoration-none">Obras</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'detalle_obra' obra.pk %}" class="text-decoration-none">{{ obra.codigo }}</a></li>
+    <li class="breadcrumb-item active">Presupuesto {{ presupuesto.numero }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="h3 mb-1">Presupuesto {{ presupuesto.numero }}</h1>
+    <p class="text-muted mb-0">
+      {{ obra.codigo }} · {{ obra.cliente.nombre }} · Fecha: {{ presupuesto.fecha }}
+    </p>
+  </div>
+  <div class="d-flex gap-2 align-items-center">
+    <span class="badge {% if presupuesto.estado == 'aceptado' %}bg-success-subtle text-success-emphasis{% elif presupuesto.estado == 'rechazado' or presupuesto.estado == 'caducado' %}bg-danger-subtle text-danger-emphasis{% elif presupuesto.estado == 'enviado' %}bg-info-subtle text-info-emphasis{% else %}bg-warning-subtle text-warning-emphasis{% endif %} fs-6 px-3 py-2">
+      {{ presupuesto.get_estado_display }}
+    </span>
+    {% if presupuesto.editable %}
+      <a href="{% url 'editar_presupuesto' presupuesto.pk %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-pencil"></i> Editar
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% for capitulo in presupuesto.capitulos.all %}
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+    <h2 class="h6 mb-0 fw-semibold">{{ capitulo.nombre }}</h2>
+    <span class="fw-semibold">{{ capitulo.subtotal|floatformat:2 }} €</span>
+  </div>
+  {% if capitulo.partidas.all %}
+    <table class="table mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Descripción</th>
+          <th class="text-end" style="width: 100px;">Cant.</th>
+          <th style="width: 80px;">Ud.</th>
+          <th class="text-end" style="width: 120px;">Precio</th>
+          <th class="text-end" style="width: 130px;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for partida in capitulo.partidas.all %}
+        <tr>
+          <td>{{ partida.descripcion }}</td>
+          <td class="text-end">{{ partida.cantidad|floatformat:2 }}</td>
+          <td>{{ partida.unidad }}</td>
+          <td class="text-end">{{ partida.precio_unitario|floatformat:2 }} €</td>
+          <td class="text-end fw-semibold">{{ partida.total|floatformat:2 }} €</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="p-3 text-muted small">Este capítulo no tiene partidas.</div>
+  {% endif %}
+</div>
+{% empty %}
+<div class="card border-0 shadow-sm">
+  <div class="card-body text-center py-5 text-muted">
+    <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>
+    <p class="mb-0">El presupuesto está vacío.</p>
+    {% if presupuesto.editable %}
+      <a href="{% url 'editar_presupuesto' presupuesto.pk %}" class="btn btn-primary btn-sm mt-3">
+        Empezar a editarlo
+      </a>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+{% if presupuesto.capitulos.all %}
+<div class="card border-0 shadow-sm mt-3">
+  <div class="card-body">
+    <div class="row justify-content-end">
+      <div class="col-md-4">
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Base imponible</span>
+          <span>{{ presupuesto.base_imponible|floatformat:2 }} €</span>
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">IVA ({{ presupuesto.iva_porcentaje|floatformat:0 }}%)</span>
+          <span>{{ presupuesto.iva|floatformat:2 }} €</span>
+        </div>
+        <hr class="my-2">
+        <div class="d-flex justify-content-between">
+          <span class="fw-bold">TOTAL</span>
+          <span class="h4 mb-0 text-primary">{{ presupuesto.total|floatformat:2 }} €</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if presupuesto.estado == 'enviado' %}
+<div class="card border-0 shadow-sm mt-4">
+  <div class="card-body d-flex justify-content-between align-items-center">
+    <p class="mb-0">¿Qué ha respondido el cliente?</p>
+    <div class="d-flex gap-2">
+      <form method="post" action="{% url 'cambiar_estado_presupuesto' presupuesto.pk %}" class="m-0">
+        {% csrf_token %}
+        <input type="hidden" name="estado" value="aceptado">
+        <button type="submit" class="btn btn-success btn-sm">
+          <i class="bi bi-check-lg"></i> Aceptado
+        </button>
+      </form>
+      <form method="post" action="{% url 'cambiar_estado_presupuesto' presupuesto.pk %}" class="m-0">
+        {% csrf_token %}
+        <input type="hidden" name="estado" value="rechazado">
+        <button type="submit" class="btn btn-outline-danger btn-sm">
+          <i class="bi bi-x-lg"></i> Rechazado
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

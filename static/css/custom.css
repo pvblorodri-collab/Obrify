@@ -7,3 +7,21 @@
 .card {
   border-radius: 0.75rem;
 }
+
+/* Dropdown de autocompletado en la edición de partidas. */
+.autocompletar-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 20;
+}
+
+.autocompletar-dropdown:empty {
+  display: none;
+}
+
+/* Que las cabeceras de tabla no se corten en filas HTMX. */
+.table > :not(caption) > * > * {
+  padding: 0.35rem 0.5rem;
+}
