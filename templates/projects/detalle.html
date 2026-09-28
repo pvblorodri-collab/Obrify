@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ obra.codigo }} — Obrify{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb small">
+    <li class="breadcrumb-item"><a href="{% url 'lista_obras' %}" class="text-decoration-none">Obras</a></li>
+    <li class="breadcrumb-item active">{{ obra.codigo }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="h3 mb-1">{{ obra.codigo }}</h1>
+    <p class="text-muted mb-0">{{ obra.direccion }}</p>
+  </div>
+  <span class="badge bg-secondary-subtle text-secondary-emphasis fs-6">{{ obra.get_estado_display }}</span>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 text-muted mb-3">Cliente</h2>
+        <p class="mb-1 fw-semibold">{{ obra.cliente.nombre }}</p>
+        {% if obra.cliente.email %}<p class="mb-1 small text-muted">{{ obra.cliente.email }}</p>{% endif %}
+        {% if obra.cliente.telefono %}<p class="mb-0 small text-muted">{{ obra.cliente.telefono }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 text-muted mb-3">Fechas</h2>
+        <p class="mb-1 small"><span class="text-muted">Inicio:</span> {{ obra.fecha_inicio|default:"—" }}</p>
+        <p class="mb-1 small"><span class="text-muted">Fin previsto:</span> {{ obra.fecha_prevista_fin|default:"—" }}</p>
+        <p class="mb-0 small"><span class="text-muted">Fin real:</span> {{ obra.fecha_real_fin|default:"—" }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 text-muted mb-3">Presupuesto</h2>
+        <p class="text-muted small mb-0">Aún no implementado.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if obra.descripcion %}
+<div class="card border-0 shadow-sm mt-3">
+  <div class="card-body">
+    <h2 class="h6 text-muted mb-2">Descripción</h2>
+    <p class="mb-0">{{ obra.descripcion|linebreaks }}</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

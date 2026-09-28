@@ -1,0 +1,9 @@
+/* Estilos propios de Obrify. Añadir aquí lo que Bootstrap no cubre. */
+
+.navbar-brand {
+  letter-spacing: -0.5px;
+}
+
+.card {
+  border-radius: 0.75rem;
+}

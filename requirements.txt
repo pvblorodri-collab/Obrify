@@ -1,0 +1,5 @@
+Django==5.1.4
+python-decouple==3.8
+dj-database-url==2.3.0
+psycopg[binary]==3.2.3
+whitenoise==6.8.2
